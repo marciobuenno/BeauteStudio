@@ -1,0 +1,137 @@
+{
+  "iteration": 1,
+  "summary": "Backend suite: 15/15 passed. Browser checks: 3 passed, 5 failed — all 5 failures share one root cause (frontend crash on any trial-plan admin render).",
+  "passed": 10,
+  "failed": 5,
+  "bugs": [
+    {
+      "severity": "critical",
+      "title": "Admin area crashes with 'Invalid time value' for any trial-plan studio (blocks dashboard, services, schedule, appointments admin, and the post-register redirect)",
+      "root_cause": "frontend/src/lib/format.ts formatDateBR() calls date-fns parse(iso, 'yyyy-MM-dd', new Date()) but is fed studio.plan_expires_at, which the backend returns as a full ISO datetime string (e.g. '2026-10-24T12:44:25.991000Z'), not a bare 'yyyy-MM-dd' date. parse() throws RangeError('Invalid time value') inside format(). It is invoked from AdminLayout.tsx's PlanBadge (every /admin/* route renders AdminLayout) and from SettingsAdmin.tsx. Any studio on the 'trial' plan with plan_expires_at set — i.e. every freshly seeded or freshly registered studio — crashes the whole admin shell with Emergent's runtime-error overlay instead of rendering.",
+      "evidence": "Browser screenshot /root/.emergent/automation_output/20261010_125440_967/admin-login-dashboard-failure.png shows 'Invalid time value — src/lib/format.ts:25:10' overlay right after a valid login. Console error 'pageerror: Invalid time value' reproduced identically across admin-login-dashboard, admin-services-crud, admin-schedule-editor, admin-appointments-manual, and register-new-studio checks. Backend cross-check (curl) confirms the API itself is healthy and returns the expected trial data: POST /api/auth/login -> 200 {\"plan\":\"trial\",\"plan_expires_at\":\"2026-10-24T12:44:25.991000Z\", ...} — the bug is purely in the frontend date-parsing, not the API.",
+      "affected_criteria": [
+        "Login do dono em /login ... abre /admin com dashboard",
+        "CRUD de serviços no admin",
+        "Editor de horários em /admin/schedule",
+        "Admin de agendamentos: criar/concluir/cancelar",
+        "Cadastro de novo studio em /register ... cai no /admin"
+      ]
+    }
+  ],
+  "action_items": [],
+  "retest_needed": true,
+  "checks": [
+    {
+      "criterion": "Página pública /b/beaute-studio-1 tem splash elegante e catálogo com chips/abas funcionais",
+      "name": "public-splash-catalog",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Splash (ENTRAR/CONHECER O STUDIO) visible, disappears on ENTRAR; 6 service-card testids rendered; category-chip-unhas filters to 3; professionals-tab shows 2 professional-card testids. Also passed re-run against public preview ingress https://beaute-studio-1.preview.emergentagent.com."
+    },
+    {
+      "criterion": "Público catálogo retorna 6 serviços, categorias e profissionais (API)",
+      "name": "test_tscheck_public_catalog.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "GET /public/studios/beaute-studio-1 -> 200, 6 services, 3 categories, 2 professionals, 3 of them category 'Unhas'; unknown slug -> 404."
+    },
+    {
+      "criterion": "Cliente agenda pelo modal público (serviço → profissional/any → data → horário → dados → confirmar)",
+      "name": "public-booking-flow",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Booked 'Design com Henna' with 'Qualquer disponível', date 2026-10-13, first free slot, customer form, booking-success testid visible containing 'Design com Henna'."
+    },
+    {
+      "criterion": "Reserva pública cria appointment confirmado e rejeita conflito com 409 (API)",
+      "name": "test_tscheck_public_booking.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "POST /public/studios/beaute-studio-1/appointments -> 201 confirmed appointment; second booking of the same professional/date/time -> 409."
+    },
+    {
+      "criterion": "Horários fechados respeitados: domingo sem slots, dias passados desabilitados no calendário",
+      "name": "public-closed-day-and-past-dates",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Calendar day '5' (past) has disabled attribute; selecting Sunday 2026-10-11 shows 'Não há horários livres neste dia. Escolha outra data.'."
+    },
+    {
+      "criterion": "Domingo sem slots / dia aberto tem slots (API)",
+      "name": "test_tscheck_sunday_closed.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "GET /public/studios/beaute-studio-1/slots?date=<next-sunday> -> 200 []; a future open weekday returns a list including '09:00'."
+    },
+    {
+      "criterion": "Login do dono em /login abre /admin com dashboard (métricas, agenda, badge de plano)",
+      "name": "admin-login-dashboard",
+      "lane": "browser",
+      "status": "failed",
+      "evidence": "After successful login, app crashes with Emergent runtime-error overlay 'Invalid time value — src/lib/format.ts:25:10' instead of rendering the dashboard metric cards. See bugs[0]."
+    },
+    {
+      "criterion": "Login válido/invalido retorna sessão e 401 respectivamente (API)",
+      "name": "test_tscheck_login.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "POST /auth/login with correct creds -> 200 + beaute_session cookie + GET /auth/me 200; wrong password -> 401."
+    },
+    {
+      "criterion": "CRUD de serviços no admin: criar, editar, excluir",
+      "name": "admin-services-crud",
+      "lane": "browser",
+      "status": "failed",
+      "evidence": "Cannot reach /admin/services: AdminLayout crashes on every /admin/* route (same 'Invalid time value' root cause) before the services table renders. admin-nav-services never becomes visible."
+    },
+    {
+      "criterion": "Services CRUD roundtrip (API) + create requires auth",
+      "name": "test_tscheck_services_crud.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "POST /services -> 201; service appears in GET /services and GET /public/studios/beaute-studio-1; PATCH price -> 200 updated; DELETE -> 204 and removed from listing; unauthenticated POST -> 401."
+    },
+    {
+      "criterion": "Editor de horários em /admin/schedule: alterar e salvar horário",
+      "name": "admin-schedule-editor",
+      "lane": "browser",
+      "status": "failed",
+      "evidence": "Cannot reach /admin/schedule: admin-nav-schedule never visible due to the same AdminLayout crash."
+    },
+    {
+      "criterion": "PUT /studio/hours persiste e reflete nos slots públicos (API)",
+      "name": "test_tscheck_schedule_hours.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "PUT /studio/hours {entries:[...Thursday open_time=11:00...]} -> 200; GET /studio/hours confirms persisted; public slots for a future Thursday exclude '09:00' and include '11:00'; hours restored to original afterward."
+    },
+    {
+      "criterion": "Admin cria agendamento manual, conclui e cancela",
+      "name": "admin-appointments-manual",
+      "lane": "browser",
+      "status": "failed",
+      "evidence": "Cannot reach /admin/appointments: admin-nav-appointments never visible due to the same AdminLayout crash."
+    },
+    {
+      "criterion": "Criação manual de agendamento, conclusão e cancelamento (API)",
+      "name": "test_tscheck_admin_appointments.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "POST /appointments -> 201 confirmed; appears in GET /appointments?scope=upcoming; PATCH status=completed -> 200; second fixture appointment PATCH status=cancelled -> 200; unauthenticated POST -> 401."
+    },
+    {
+      "criterion": "Cadastro de novo studio em /register cria studio+sessão e cai em /admin com estado vazio",
+      "name": "register-new-studio",
+      "lane": "browser",
+      "status": "failed",
+      "evidence": "Register succeeds and navigates to /admin (URL matches), but AdminLayout then crashes with the same 'Invalid time value' overlay — admin-nav-dashboard never renders, so the promised empty-state dashboard is unreachable for a brand-new trial studio too."
+    },
+    {
+      "criterion": "Registro cria studio/sessão e página pública do novo slug funciona com estado vazio (API)",
+      "name": "test_tscheck_register.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "POST /auth/register -> 201 + session cookie + GET /auth/me 200 matching slug; GET /public/studios/{new-slug} -> 200 with empty services/professionals arrays; duplicate email -> 409."
+    }
+  ]
+}

@@ -1,0 +1,272 @@
+{
+  "theme": "light_luxury_organic",
+  "project_name": "Beauté SaaS Studio",
+  "locale": {
+    "language": "pt-BR",
+    "currency": "BRL",
+    "currency_symbol": "R$",
+    "date_format": "dd/MM/yyyy",
+    "time_format": "HH:mm"
+  },
+  "colors": {
+    "surfaces": [
+      {
+        "name": "page",
+        "kind": "solid",
+        "bg": "#FAF7F2",
+        "on_bg": "#1C1917",
+        "on_bg_muted": "#57534E",
+        "roles": {
+          "link": "#99582A",
+          "error": "#B91C1C",
+          "success": "#15803D"
+        }
+      },
+      {
+        "name": "panel",
+        "kind": "solid",
+        "bg": "#FFFFFF",
+        "on_bg": "#1C1917",
+        "on_bg_muted": "#57534E",
+        "roles": {
+          "link": "#99582A",
+          "error": "#B91C1C",
+          "success": "#15803D"
+        }
+      },
+      {
+        "name": "panel_warm",
+        "kind": "solid",
+        "bg": "#F5EFE6",
+        "on_bg": "#1C1917",
+        "on_bg_muted": "#57534E"
+      },
+      {
+        "name": "inverse",
+        "kind": "solid",
+        "bg": "#1C1917",
+        "on_bg": "#FAF7F2",
+        "on_bg_muted": "#D6D3D1",
+        "roles": {
+          "link": "#D4A373",
+          "error": "#FCA5A5",
+          "success": "#86EFAC"
+        }
+      },
+      {
+        "name": "hero_splash",
+        "kind": "solid",
+        "bg": "#1A1715",
+        "on_bg": "#FAF7F2",
+        "on_bg_muted": "#D6D3D1",
+        "roles": {
+          "link": "#D4A373",
+          "error": "#FCA5A5",
+          "success": "#86EFAC"
+        }
+      },
+      {
+        "name": "glass_header",
+        "kind": "glass",
+        "contrast_against": "#FAF7F2",
+        "guarantee": "backdrop-blur-xl bg-[#FAF7F2]/85 border-b border-[#E7E2D9]",
+        "on_bg": "#1C1917",
+        "on_bg_muted": "#57534E",
+        "roles": {
+          "link": "#99582A"
+        }
+      },
+      {
+        "name": "badge_gold",
+        "kind": "solid",
+        "bg": "#F8EBDD",
+        "on_bg": "#7C3E1D",
+        "on_bg_muted": "#7C3E1D"
+      },
+      {
+        "name": "badge_success",
+        "kind": "solid",
+        "bg": "#DCFCE7",
+        "on_bg": "#14532D",
+        "on_bg_muted": "#14532D"
+      }
+    ],
+    "accent": "#99582A",
+    "on_accent": "#FFFFFF",
+    "palette_tokens": {
+      "champagne": "#F5EFE6",
+      "sand": "#FAF7F2",
+      "terracotta": "#99582A",
+      "terracotta_hover": "#7C3E1D",
+      "charcoal": "#1C1917",
+      "warm_grey": "#57534E",
+      "soft_border": "#E7E2D9",
+      "blush_card": "#FFFDFC"
+    }
+  },
+  "typography": {
+    "heading_font": "Playfair Display Variable",
+    "body_font": "Instrument Sans Variable",
+    "mono_font": "JetBrains Mono Variable",
+    "import_statements": [
+      "@import \"@fontsource-variable/playfair-display\";",
+      "@import \"@fontsource-variable/instrument-sans\";",
+      "@import \"@fontsource-variable/jetbrains-mono\";"
+    ],
+    "scale_px": {
+      "display": 56,
+      "h1": 42,
+      "h2": 32,
+      "h3": 24,
+      "h4": 20,
+      "body": 16,
+      "caption": 14
+    },
+    "hierarchy_rules": {
+      "hero_h1": "font-serif text-3xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-stone-900 leading-[1.15]",
+      "section_h2": "font-serif text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-stone-900",
+      "card_h3": "font-serif text-xl sm:text-2xl font-medium tracking-normal text-stone-900",
+      "widget_h4": "font-sans text-base sm:text-lg font-semibold tracking-normal text-stone-900",
+      "body_regular": "font-sans text-base leading-relaxed text-stone-700",
+      "body_muted": "font-sans text-sm sm:text-base leading-relaxed text-stone-600",
+      "caption_badge": "font-sans text-xs tracking-wider uppercase font-semibold"
+    }
+  },
+  "entry_surfaces": {
+    "/": "split hero — brand tagline + SaaS value proposition left, live interactive booking studio preview right",
+    "/login": "branded split login — editorial beauty portrait and positioning quote left, clean studio authentication form right",
+    "/register": "branded split register — plan overview and studio perks left, multi-step studio registration form right",
+    "/b/:studioSlug": "full-screen elegant splash entrance with centered logo, tagline and studio entrance actions transitioning to refined catalog view"
+  },
+  "image_urls": {
+    "hero_salon_interior": {
+      "url": "https://images.unsplash.com/photo-1781513144825-aa1e284c5950?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwyfHxtaW5pbWFsJTIwYmVhdXR5JTIwY2xpbmljJTIwaW50ZXJpb3IlMjBsdXh1cnl8ZW58MHx8fHwxNzkxNjM1ODE0fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Modern white and champagne luxury beauty studio interior for platform landing hero and splash cover",
+      "category": "landing_hero"
+    },
+    "studio_waiting_lounge": {
+      "url": "https://images.unsplash.com/photo-1759262151080-e05ba1c6294f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwxfHxtaW5pbWFsJTIwYmVhdXR5JTIwY2xpbmljJTIwaW50ZXJpb3IlMjBsdXh1cnl8ZW58MHx8fHwxNzkxNjM1ODE0fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Luxury waiting lounge in soft cream tones for studio profile and about modal",
+      "category": "studio_ambiance"
+    },
+    "service_nails_manicure": {
+      "url": "https://images.unsplash.com/photo-1632345031435-8727f6897d53?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTB8MHwxfHNlYXJjaHwxfHxiZWF1dHklMjBzYWxvbiUyMGFlc3RoZXRpY3MlMjBuYWlscyUyMHNraW5jYXJlJTIwc3BhfGVufDB8fHx8MTc5MTYzNTgxNHww&ixlib=rb-4.1.0&q=85",
+      "description": "Professional nail gel sculpting and aesthetic manicure service photo",
+      "category": "service_nails"
+    },
+    "service_skincare_facial": {
+      "url": "https://images.unsplash.com/photo-1690749138086-7422f71dc159?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTB8MHwxfHNlYXJjaHwyfHxiZWF1dHklMjBzYWxvbiUyMGFlc3RoZXRpY3MlMjBuYWlscyUyMHNraW5jYXJlJTIwc3BhfGVufDB8fHx8MTc5MTYzNTgxNHww&ixlib=rb-4.1.0&q=85",
+      "description": "Delicate aesthetic treatment and hand care at beauty studio",
+      "category": "service_aesthetics"
+    },
+    "service_hands_spa": {
+      "url": "https://images.unsplash.com/photo-1610992015836-7c249d75782d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTB8MHwxfHNlYXJjaHwzfHxiZWF1dHklMjBzYWxvbiUyMGFlc3RoZXRpY3MlMjBuYWlscyUyMHNraW5jYXJlJTIwc3BhfGVufDB8fHx8MTc5MTYzNTgxNHww&ixlib=rb-4.1.0&q=85",
+      "description": "Refined hands spa and polished manicure detail",
+      "category": "service_hands"
+    },
+    "professional_giovana": {
+      "url": "https://images.unsplash.com/photo-1728488196797-3db262ae92ab?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzV8MHwxfHNlYXJjaHwzfHxmZW1hbGUlMjBhZXN0aGV0aWNpYW4lMjBwb3J0cmFpdCUyMHN0dWRpb3xlbnwwfHx8fDE3OTE2MzU4MTR8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Portrait of Master Nail Designer and Aesthetician Giovana Sá",
+      "category": "professionals"
+    },
+    "professional_juliana": {
+      "url": "https://images.unsplash.com/photo-1762341113869-0bfa616b4457?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzV8MHwxfHNlYXJjaHw0fHxmZW1hbGUlMjBhZXN0aGV0aWNpYW4lMjBwb3J0cmFpdCUyMHN0dWRpb3xlbnwwfHx8fDE3OTE2MzU4MTR8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Portrait of Lash & Brow Specialist Juliana Carneiro",
+      "category": "professionals"
+    }
+  },
+  "user_experience_flow": {
+    "landing_platform": {
+      "name": "Beauté SaaS Platform",
+      "route": "/",
+      "purpose": "Apresentar a solução SaaS para proprietárias de studios e profissionais da beleza no Brasil, permitindo criar studio em 2 minutos ou testar a experiência do cliente.",
+      "sections": [
+        "Header com Logo Beauté em Serif clássico + links: Funcionalidades, Preços, Demonstração, Entrar, Cadastrar Studio",
+        "Hero principal com proposição de valor: 'O sistema de studio mais elegante do Brasil. Encante clientes antes mesmo do atendimento.'",
+        "Preview interativo do catálogo de agendamento que as clientes vêem (estilo HTML referência)",
+        "Bento Grid de recursos SaaS: Gestão de Agenda, Horários por dia da semana, Múltiplos Profissionais, WhatsApp reminders mockup, Catálogo público personalizável",
+        "Tabela de Planos SaaS (Mensal R$ 69/mês / Anual R$ 590/ano com 14 dias de teste grátis)",
+        "CTA de conversão: 'Comece a lucrar com o seu Studio hoje'"
+      ]
+    },
+    "public_studio_booking": {
+      "name": "Página Pública do Studio (Referência HTML)",
+      "route": "/b/:studioSlug",
+      "purpose": "Reproduzir com precisão estética e fluidez moderna o HTML fornecido (Splash entrance elegante + catálogo de serviços/profissionais + fluxo de agendamento em 4 passos)",
+      "steps": [
+        {
+          "step": "Splash Screen",
+          "description": "Tela cheia com fundo escuro sutil ou bege quente, logo Beauté Studio, '✦', 'Sua melhor versão, todos os dias.', botão 'ENTRAR →' que rola suavemente para o catálogo e botão 'CONHECER O STUDIO' para modal de história/localização."
+        },
+        {
+          "step": "Catálogo com Filtros",
+          "description": "Título da categoria com tipografia Playfair (ex: 'Unhas'), subtítulo 'Beleza, cuidado e perfeição até a ponta dos dedos.', chips de categoria ('Todas', 'Unhas', 'Estética Facial', 'Cílios & Sobrancelhas') e alternador 'Serviços' / 'Profissionais', citação dos profissionais ('Atendimento por Giovana Sá e Juliana Carneiro')."
+        },
+        {
+          "step": "Card de Serviço & Agendamento",
+          "description": "Cards com foto do serviço, nome, duração em minutos, descrição detalhada, preço em Real ('A partir de R$ 150,00' ou 'R$ 180,00') e botão 'Agendar'."
+        },
+        {
+          "step": "Modal de Agendamento Interativo (4 etapas)",
+          "description": "1. Escolha do Profissional (ou 'Qualquer disponível'); 2. Calendário de data com dias disponíveis conforme horário do studio; 3. Grade de horários livres calculados subtraindo agendamentos existentes; 4. Dados da cliente (Nome, WhatsApp com máscara brasileira (XX) XXXXX-XXXX, observações) e confirmação com resumo elegante e link para WhatsApp."
+        },
+        {
+          "step": "Card IMPORTANTE",
+          "description": "Card de aviso ao final do catálogo com políticas de tolerância de atraso (10 min), reagendamento com 24h e política de sinal."
+        }
+      ]
+    },
+    "admin_studio_dashboard": {
+      "name": "Painel de Controle do Studio",
+      "routes": [
+        "/admin/dashboard (Hoje & Agenda rápida)",
+        "/admin/appointments (Listagem, filtros por status, confirmação e cancelamento)",
+        "/admin/services (CRUD de categorias, preços, durações e fotos)",
+        "/admin/professionals (CRUD de profissionais com especialidades e avatar)",
+        "/admin/schedule (Configuração de horários de funcionamento por dia da semana e intervalos de almoço)",
+        "/admin/settings (Link público do studio /b/slug, dados cadastrais, plano & assinatura)"
+      ],
+      "metrics_cards": [
+        "Agendamentos de Hoje",
+        "Faturamento Estimado (R$)",
+        "Novos Clientes no Mês",
+        "Taxa de Ocupação da Agenda"
+      ]
+    }
+  },
+  "layout_and_spacing": {
+    "philosophy": "Generous luxury spacing. Soft rounded corners (rounded-2xl a rounded-3xl), 1px subtle borders tinting towards #E7E2D9, elegant drop shadows.",
+    "container_max_w": "max-w-6xl mx-auto px-4 sm:px-6 lg:px-8",
+    "bento_grid": "grid grid-cols-1 md:grid-cols-12 gap-6",
+    "card_padding": "p-6 sm:p-8",
+    "section_vertical_space": "py-16 sm:py-24"
+  },
+  "motion_and_interactions": {
+    "engine": "motion/react",
+    "entrance_preset": {
+      "initial": { "opacity": 0, "y": 16 },
+      "animate": { "opacity": 1, "y": 0 },
+      "transition": { "duration": 0.45, "ease": [0.22, 1, 0.36, 1] }
+    },
+    "stagger_children": {
+      "staggerChildren": 0.08
+    },
+    "hover_lift": "transition-transform duration-200 hover:-translate-y-1 hover:shadow-md",
+    "button_press": "active:scale-[0.98] transition-transform duration-100",
+    "toast_provider": "sonner with richColors and Brazilian Portuguese messages"
+  },
+  "accessibility_and_testing": {
+    "testing_attributes": "All buttons, inputs, links, tabs, and status badges MUST include explicit data-testid attributes formatted in kebab-case (e.g. data-testid='booking-submit-button', data-testid='service-item-unhas-gel', data-testid='admin-agenda-tab').",
+    "contrast_compliance": "All body copy in #1C1917 or #57534E against #FAF7F2 or #FFFFFF exceeds 4.5:1 ratio. Button text on terracotta #99582A is pure white (#FFFFFF), achieving 4.8:1 contrast.",
+    "screen_reader_labels": "All icon-only buttons include aria-label in pt-BR."
+  },
+  "instructions_to_main_agent": [
+    "1. Initialize backend with FastAPI models in backend/models/ covering: Studio, User (owner/staff), Service, Professional, Appointment, BusinessHours, Subscription.",
+    "2. Seed high-fidelity sample data for 'Beauté Clinic Studio' (slug: beaute-studio-1) with services matching the HTML reference: Alongamento em Gel (R$ 180), Manicure Tradicional (R$ 55), Spa dos Pés (R$ 80), Limpeza de Pele Profunda (R$ 160), Lash Lifting (R$ 140), Design com Henna (R$ 65); with 2 professionals: Giovana Sá and Juliana Carneiro; and realistic business hours (Seg a Sáb 09:00 às 19:00).",
+    "3. Implement full auth with httpOnly cookies via /api/auth/login, /api/auth/register, /api/auth/me, /api/auth/logout.",
+    "4. Build public studio route /b/:studioSlug with the exact cinematic entrance splash of the reference HTML, smooth scroll to catalog, chips filtering, and modern booking drawer/modal calculating real open time slots.",
+    "5. Build comprehensive studio admin panel with Hoje/Agenda view, Appointments calendar/table, Services CRUD, Professionals CRUD, Business Hours editor, and Subscription status badge (Trial/Active).",
+    "6. Use @fontsource-variable/playfair-display for all display titles and brand names, and @fontsource-variable/instrument-sans for clean, luxurious UI body copy.",
+    "7. Add quick studio switcher or copyable public booking link button with one-click toast feedback so studio owners can share their booking link immediately."
+  ]
+}
