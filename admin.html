@@ -30,13 +30,23 @@ h1{font:600 32px 'Cormorant Garamond',Georgia,serif;margin:16px 0 4px}
 .btn{border:1px solid var(--gold);background:transparent;color:var(--gold2);padding:7px 12px;border-radius:99px;font:inherit;font-weight:700;font-size:12px;cursor:pointer;text-decoration:none;display:inline-block}
 .btn.fill{background:linear-gradient(#c78a3a,#9a6420);color:#fff;border-color:transparent}
 .btn.red{color:#9a2a20;border-color:#d9a09a}
-input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;background:#fff;margin-bottom:10px;color:var(--ink)}
+input,select{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;background:#fff;margin-bottom:10px;color:var(--ink)}
 .login{max-width:380px;margin:12vh auto 0;padding:0 16px}
 .err{color:#b3261e;font-size:13px;min-height:18px}
+select{appearance:auto}
+.chk{display:flex;gap:8px;align-items:center;margin:6px 0;font-size:14px}
+.chk input{width:auto;margin:0}
+.dayrow{display:grid;grid-template-columns:70px 1fr 1fr;gap:6px;margin-bottom:6px;align-items:center}
+.dayrow input{margin:0;padding:8px}
+.ov{position:fixed;inset:0;background:rgba(40,24,10,.5);display:flex;align-items:flex-end;justify-content:center;z-index:9}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px 16px calc(24px + env(safe-area-inset-bottom));position:relative}
+.sheet h3{margin:0 0 6px;font:600 26px 'Cormorant Garamond',Georgia,serif;padding-right:30px}
+.x{position:absolute;right:12px;top:8px;border:0;background:none;font-size:28px;color:var(--mut);cursor:pointer}
 </style>
 </head>
 <body>
 <div id="app"></div>
+<div id="sheet"></div>
 <script>
 const CFG = {
   url: 'https://cjymokyremilztjhgjvy.supabase.co',
@@ -47,7 +57,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const brl = c => (c / 100).toLocaleString('pt-BR', {style:'currency', currency:'BRL', minimumFractionDigits: c % 100 ? 2 : 0});
 const hm = t => new Date(t).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
 const LBL = {pending:'Pendente', confirmed:'Confirmado', completed:'Concluído', cancelled:'Cancelado', no_show:'Faltou'};
-let T = null, ME = null, V = 'pend', DATA = [], CL = [], Q = '';
+let T = null, ME = null, V = 'pend', DATA = [], CL = [], Q = '', SV = [], CAT = [], PR = [], OFF = [], WH = [], ST = null;
 try { T = JSON.parse(localStorage.getItem('bcs_session')); } catch (e) {}
 
 async function api(path, opt = {}) {
@@ -110,6 +120,9 @@ async function createStudio() {
   } catch (e) { $('#oe').textContent = e.message; }
 }
 async function load() {
+  if (V === 'svc') { [SV, CAT, PR, OFF] = await Promise.all([api('/rest/v1/services?select=*&order=sort_order.asc,name.asc'), api('/rest/v1/service_categories?select=*&order=sort_order.asc,name.asc'), api('/rest/v1/professionals?select=id,name&active=eq.true&order=sort_order.asc'), api('/rest/v1/professional_services?select=professional_id,service_id,price_is_from')]); return; }
+  if (V === 'team') { [PR, WH] = await Promise.all([api('/rest/v1/professionals?select=*&order=sort_order.asc,name.asc'), api('/rest/v1/working_hours?select=*&order=start_time.asc')]); return; }
+  if (V === 'me') { ST = (await api('/rest/v1/studios?select=*&id=eq.' + ME.studio_id))[0]; return; }
   if (V === 'cli') { CL = await api('/rest/v1/clients?select=id,full_name,phone,email&order=full_name.asc'); return; }
   const t0 = new Date(); t0.setHours(0, 0, 0, 0);
   const d = n => new Date(t0.getTime() + n * 864e5).toISOString();
@@ -156,12 +169,139 @@ const clList = list => list.length ? list.map(c => { const w = waLink(c.phone); 
 function renderList() { const q = Q.toLowerCase(); $('#cl').innerHTML = clList(CL.filter(c => (c.full_name + ' ' + (c.phone || '')).toLowerCase().includes(q))); }
 
 function render() {
-  const tabs = [['pend','Pendentes'], ['hoje','Hoje'], ['prox','Próximos 14 dias'], ['cli','Clientes']];
+  const tabs = [['pend','Pendentes'], ['hoje','Hoje'], ['prox','Próximos 14 dias'], ['cli','Clientes'], ['svc','Serviços'], ['team','Equipe'], ['me','Meu studio']];
   $('#app').innerHTML = `<header><div class="brand">${esc((ME.studios || {}).name || 'Studio')}</div><button class="btn" onclick="logout()">Sair</button></header>
     <div class="wrap"><h1>Olá, ${esc(ME.display_name)}</h1><p class="tag" style="margin:0 0 6px;font-size:13px">Seu site: <a href="${esc(location.origin)}/?studio=${esc((ME.studios || {}).slug)}" target="_blank" rel="noopener">${esc(location.origin)}/?studio=${esc((ME.studios || {}).slug)}</a></p>
     <div class="chips">${tabs.map(t => `<button class="chip ${V === t[0] ? 'on' : ''}" onclick="go('${t[0]}')">${t[1]}</button>`).join('')}</div>
-    ${V === 'cli' ? clients() : agenda()}</div>`;
+    ${V === 'cli' ? clients() : V === 'svc' ? svcView() : V === 'team' ? teamView() : V === 'me' ? meView() : agenda()}</div>`;
 }
+function sheet(html) { $('#sheet').innerHTML = html ? `<div class="ov" onclick="if(event.target===this)sheet()"><div class="sheet"><button class="x" onclick="sheet()">×</button>${html}</div></div>` : ''; }
+const hdrs = {Prefer: 'return=minimal'}, rets = {Prefer: 'return=representation'};
+
+// ---------- Serviços ----------
+function svcView() {
+  const grp = {};
+  SV.forEach(x => (grp[x.category_id || ''] = grp[x.category_id || ''] || []).push(x));
+  const nm = k => (CAT.find(c => c.id === k) || {}).name || 'Sem categoria';
+  return '<button class="btn fill" onclick="svcForm()">+ Novo serviço</button>' + (SV.length ? Object.entries(grp).map(([k, list]) => `<div class="lbl">${esc(nm(k))}</div>` + list.map(x => `<div class="card"><div class="top"><h3>${esc(x.name)}${x.active ? '' : ' <small>(oculto)</small>'}</h3><b>${brl(x.price_cents)}</b></div><p>${x.duration_minutes} min · ${OFF.filter(o => o.service_id === x.id).length} profissional(is)</p><div class="acts"><button class="btn" onclick="svcForm('${x.id}')">Editar</button><button class="btn red" onclick="svcToggle('${x.id}')">${x.active ? 'Ocultar' : 'Mostrar'}</button></div></div>`).join('')).join('') : '<p class="tag" style="margin-top:14px">Nenhum serviço ainda. Toque em "+ Novo serviço" para criar o primeiro.</p>');
+}
+function svcForm(id) {
+  const x = SV.find(v => v.id === id) || {duration_minutes: 60, price_cents: 0};
+  const sel = new Set(OFF.filter(o => o.service_id === id).map(o => o.professional_id));
+  const from = OFF.some(o => o.service_id === id && o.price_is_from);
+  sheet(`<h3>${id ? 'Editar' : 'Novo'} serviço</h3>
+    <div class="lbl">Nome</div><input id="f_name" value="${esc(x.name || '')}">
+    <div class="lbl">Categoria</div><select id="f_cat" onchange="$('#f_newcat').style.display=this.value==='new'?'block':'none'">${CAT.map(c => `<option value="${c.id}" ${c.id === x.category_id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}<option value="new" ${CAT.length ? '' : 'selected'}>+ Nova categoria…</option></select>
+    <input id="f_newcat" placeholder="Nome da nova categoria (ex.: Unhas)" style="display:${CAT.length ? 'none' : 'block'}">
+    <div class="lbl">Descrição (opcional)</div><input id="f_desc" value="${esc(x.description || '')}">
+    <div class="lbl">Duração (minutos)</div><input id="f_dur" type="number" min="5" step="5" value="${x.duration_minutes}">
+    <div class="lbl">Preço (R$)</div><input id="f_price" type="number" min="0" step="0.01" value="${(x.price_cents / 100).toFixed(2)}">
+    <label class="chk"><input type="checkbox" id="f_from" ${from ? 'checked' : ''}> Mostrar "a partir de"</label>
+    <div class="lbl">Quem faz este serviço</div>${PR.map(q => `<label class="chk"><input type="checkbox" class="f_pro" value="${q.id}" ${sel.has(q.id) ? 'checked' : ''}> ${esc(q.name)}</label>`).join('') || '<p class="tag">Cadastre uma profissional na aba Equipe.</p>'}
+    <div class="err" id="fe"></div><button class="btn fill" style="width:100%;padding:13px" onclick="svcSave('${id || ''}')">Salvar</button>`);
+}
+async function svcSave(id) {
+  try {
+    const name = $('#f_name').value.trim(); if (!name) throw new Error('Informe o nome do serviço.');
+    const dur = parseInt($('#f_dur').value, 10); if (!(dur > 0)) throw new Error('Informe a duração em minutos.');
+    const price = Math.round(parseFloat($('#f_price').value || '0') * 100);
+    let cat = $('#f_cat').value;
+    if (cat === 'new') {
+      const n = $('#f_newcat').value.trim(); if (!n) throw new Error('Informe o nome da categoria.');
+      const r = await api('/rest/v1/service_categories', {method: 'POST', headers: rets, body: JSON.stringify({studio_id: ME.studio_id, name: n, slug: slugify(n) || 'cat-' + Date.now(), sort_order: CAT.length + 1})});
+      cat = r[0].id;
+    }
+    const body = {name, description: $('#f_desc').value.trim() || null, category_id: cat, duration_minutes: dur, price_cents: price};
+    const old = SV.find(v => v.id === id); let sid = id;
+    if (id) {
+      if (old && old.price_cents !== price) await api(`/rest/v1/professional_services?service_id=eq.${id}&price_cents=eq.${old.price_cents}`, {method: 'PATCH', headers: hdrs, body: JSON.stringify({price_cents: null})});
+      await api('/rest/v1/services?id=eq.' + id, {method: 'PATCH', headers: hdrs, body: JSON.stringify(body)});
+    } else {
+      sid = (await api('/rest/v1/services', {method: 'POST', headers: rets, body: JSON.stringify({...body, studio_id: ME.studio_id, sort_order: SV.length + 1})}))[0].id;
+    }
+    const chosen = [...document.querySelectorAll('.f_pro:checked')].map(c => c.value), from = $('#f_from').checked;
+    const had = OFF.filter(o => o.service_id === sid).map(o => o.professional_id);
+    for (const q of had.filter(q => !chosen.includes(q))) await api(`/rest/v1/professional_services?service_id=eq.${sid}&professional_id=eq.${q}`, {method: 'DELETE', headers: hdrs});
+    for (const q of chosen.filter(q => !had.includes(q))) await api('/rest/v1/professional_services', {method: 'POST', headers: hdrs, body: JSON.stringify({studio_id: ME.studio_id, professional_id: q, service_id: sid, price_is_from: from})});
+    if (chosen.length) await api('/rest/v1/professional_services?service_id=eq.' + sid, {method: 'PATCH', headers: hdrs, body: JSON.stringify({price_is_from: from})});
+    sheet(); await load(); render();
+  } catch (e) { $('#fe').textContent = e.message; }
+}
+async function svcToggle(id) {
+  const x = SV.find(v => v.id === id);
+  try { await api('/rest/v1/services?id=eq.' + id, {method: 'PATCH', headers: hdrs, body: JSON.stringify({active: !x.active})}); await load(); render(); } catch (e) { alert(e.message); }
+}
+
+// ---------- Equipe e horários ----------
+const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+const t5 = v => String(v).slice(0, 5);
+function dayCfg(pid, i) {
+  const r = WH.filter(w => w.professional_id === pid && w.weekday === i).sort((a, b) => a.start_time.localeCompare(b.start_time));
+  if (!r.length) return {on: false, a: '09:00', b: '18:00', c: '', d: ''};
+  return r.length > 1 ? {on: true, a: t5(r[0].start_time), b: t5(r[r.length - 1].end_time), c: t5(r[0].end_time), d: t5(r[1].start_time)} : {on: true, a: t5(r[0].start_time), b: t5(r[0].end_time), c: '', d: ''};
+}
+function hoursText(pid) {
+  const d = DAYS.filter((n, i) => WH.some(w => w.professional_id === pid && w.weekday === i));
+  return d.length ? 'Atende: ' + d.join(', ') : 'Sem horários cadastrados: não aparece para agendar';
+}
+function teamView() {
+  return '<button class="btn fill" onclick="proForm()">+ Nova profissional</button>' + PR.map(q => `<div class="card"><div class="top"><h3>${esc(q.name)}${q.active ? '' : ' <small>(oculta)</small>'}</h3></div><p>${esc(q.title || '')}</p><p>${hoursText(q.id)}</p><div class="acts"><button class="btn" onclick="proForm('${q.id}')">Editar</button></div></div>`).join('');
+}
+function proForm(id) {
+  const q = PR.find(v => v.id === id) || {active: true};
+  sheet(`<h3>${id ? 'Editar' : 'Nova'} profissional</h3>
+    <div class="lbl">Nome</div><input id="p_name" value="${esc(q.name || '')}">
+    <div class="lbl">Cargo (ex.: Nail Designer)</div><input id="p_title" value="${esc(q.title || '')}">
+    <div class="lbl">Anos de profissão</div><input id="p_years" type="number" min="0" value="${q.experience_years ?? ''}">
+    <div class="lbl">Sobre ela (opcional)</div><input id="p_bio" value="${esc(q.bio || '')}">
+    <label class="chk"><input type="checkbox" id="p_act" ${q.active ? 'checked' : ''}> Aparece no site e recebe agendamentos</label>
+    <div class="lbl">Horário de atendimento</div>
+    ${DAYS.map((n, i) => { const c = dayCfg(id, i); return `<div class="dayrow"><label class="chk"><input type="checkbox" id="d${i}" ${c.on ? 'checked' : ''}> ${n}</label><input type="time" id="a${i}" value="${c.a}"><input type="time" id="b${i}" value="${c.b}"><span class="tag" style="font-size:12px">pausa</span><input type="time" id="c${i}" value="${c.c}"><input type="time" id="e${i}" value="${c.d}"></div>`; }).join('')}
+    <div class="err" id="fe"></div><button class="btn fill" style="width:100%;padding:13px" onclick="proSave('${id || ''}')">Salvar</button>`);
+}
+async function proSave(id) {
+  try {
+    const name = $('#p_name').value.trim(); if (!name) throw new Error('Informe o nome.');
+    const rows = [];
+    DAYS.forEach((n, i) => {
+      if (!$('#d' + i).checked) return;
+      const a = $('#a' + i).value, b = $('#b' + i).value, c = $('#c' + i).value, e = $('#e' + i).value;
+      if (!a || !b || a >= b) throw new Error('Confira o horário de ' + n + '.');
+      if (c && e && a < c && c < e && e < b) rows.push([i, a, c], [i, e, b]); else rows.push([i, a, b]);
+    });
+    const body = {name, title: $('#p_title').value.trim() || null, bio: $('#p_bio').value.trim() || null, experience_years: $('#p_years').value ? parseInt($('#p_years').value, 10) : null, active: $('#p_act').checked};
+    let pid = id;
+    if (id) await api('/rest/v1/professionals?id=eq.' + id, {method: 'PATCH', headers: hdrs, body: JSON.stringify(body)});
+    else pid = (await api('/rest/v1/professionals', {method: 'POST', headers: rets, body: JSON.stringify({...body, studio_id: ME.studio_id, sort_order: PR.length + 1})}))[0].id;
+    await api('/rest/v1/working_hours?professional_id=eq.' + pid, {method: 'DELETE', headers: hdrs});
+    if (rows.length) await api('/rest/v1/working_hours', {method: 'POST', headers: hdrs, body: JSON.stringify(rows.map(r => ({studio_id: ME.studio_id, professional_id: pid, weekday: r[0], start_time: r[1], end_time: r[2]})))});
+    sheet(); await load(); render();
+  } catch (e) { $('#fe').textContent = e.message; }
+}
+
+// ---------- Meu studio ----------
+function meView() {
+  const x = ST || {};
+  return `<div class="lbl">Nome do studio</div><input id="m_name" value="${esc(x.name || '')}">
+    <div class="lbl">Frase da tela de entrada</div><input id="m_tag" value="${esc(x.tagline || '')}" placeholder="Ex.: Realce sua beleza">
+    <div class="lbl">WhatsApp (com DDD)</div><input id="m_wa" value="${esc(x.whatsapp_number || '')}" placeholder="41999998888">
+    <div class="lbl">Telefone</div><input id="m_ph" value="${esc(x.phone || '')}">
+    <div class="lbl">Instagram (sem @)</div><input id="m_ig" value="${esc(x.instagram_handle || '')}">
+    <div class="lbl">Cor da marca</div><input id="m_col" type="color" value="${esc(x.brand_color || '#b87a2b')}" style="height:46px;padding:4px">
+    <div class="err" id="fe"></div><button class="btn fill" style="width:100%;padding:13px" onclick="meSave()">Salvar</button>`;
+}
+async function meSave() {
+  const fe = $('#fe'); fe.style.color = '';
+  try {
+    let wa = $('#m_wa').value.replace(/\D/g, ''); if (wa && wa.length <= 11) wa = '55' + wa;
+    const body = {name: $('#m_name').value.trim(), tagline: $('#m_tag').value.trim() || null, whatsapp_number: wa || null, phone: $('#m_ph').value.trim() || null, instagram_handle: $('#m_ig').value.replace('@', '').trim() || null};
+    if (!body.name) throw new Error('Informe o nome do studio.');
+    const col = $('#m_col').value; if (col !== (ST.brand_color || '#b87a2b')) body.brand_color = col;
+    await api('/rest/v1/studios?id=eq.' + ME.studio_id, {method: 'PATCH', headers: hdrs, body: JSON.stringify(body)});
+    await load(); fe.style.color = '#1f6b2a'; fe.textContent = 'Salvo!';
+  } catch (e) { fe.textContent = e.message; }
+}
+
 if (T) boot(); else loginView();
 </script>
 </body>
