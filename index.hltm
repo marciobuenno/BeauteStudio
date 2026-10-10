@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Beauté Clinic Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf3ea;--card:#fffaf4;--gold:#b87a2b;--gold2:#8f5a1a;--ink:#3a2414;--mut:#7a6a5c;--line:#ecd9c3;--rose:#d9776f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 'DM Sans',system-ui,sans-serif;padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+.wrap{max-width:560px;margin:auto;padding:0 14px}
+header{text-align:center;padding:calc(18px + env(safe-area-inset-top)) 0 10px;border-bottom:1px solid var(--line)}
+.brand{font:600 24px 'Cormorant Garamond',Georgia,serif;letter-spacing:.08em;text-transform:uppercase}
+h1{font:600 38px 'Cormorant Garamond',Georgia,serif;text-align:center;margin:18px 0 4px}
+.tag{text-align:center;color:var(--mut);margin:0 0 14px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px}
+.chip{flex:none;border:1px solid var(--line);background:#fff;color:var(--gold2);padding:8px 16px;border-radius:99px;font:inherit;font-weight:700;cursor:pointer}
+.chip.on{background:linear-gradient(#c78a3a,#9a6420);color:#fff;border-color:transparent}
+.by{border:1px solid var(--line);border-radius:12px;padding:8px 12px;text-align:center;font-size:13px;margin-bottom:12px}
+.by b{color:var(--rose)}
+.card{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:10px}
+.card img,.ph{width:84px;height:84px;border-radius:10px;object-fit:cover;flex:none;background:linear-gradient(135deg,#f3dcc0,#e9c79c)}
+.b{flex:1;min-width:0}
+.card h3{margin:0 0 2px;font-size:14px;letter-spacing:.05em;text-transform:uppercase}
+.card p{margin:0 0 6px;color:var(--mut);font-size:13px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0}
+.pr small{display:block;font-size:10px;letter-spacing:.08em;color:var(--mut);text-transform:uppercase}
+.pr b{color:var(--gold2);font-size:20px}
+.btn{border:1px solid var(--gold);background:transparent;color:var(--gold2);padding:8px 14px;border-radius:99px;font:inherit;font-weight:700;font-size:12px;letter-spacing:.06em;cursor:pointer;text-transform:uppercase;text-decoration:none;display:inline-block}
+.btn.fill{background:linear-gradient(#c78a3a,#9a6420);color:#fff;border-color:transparent;width:100%;padding:13px;font-size:14px;margin-top:6px}
+.btn:disabled{opacity:.5}
+.note{background:#f6e6d3;border-radius:12px;padding:12px;font-size:13px;color:var(--mut);margin:6px 0 14px}
+nav{position:fixed;left:0;right:0;bottom:0;background:#fffaf4;border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+nav button{background:none;border:0;font:inherit;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);padding:8px 10px;cursor:pointer}
+nav button.on{color:var(--gold2)}
+nav .cta{background:linear-gradient(#c78a3a,#9a6420);color:#fff;border-radius:99px;padding:12px 22px}
+.ov{position:fixed;inset:0;background:rgba(40,24,10,.5);display:flex;align-items:flex-end;justify-content:center;z-index:9}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));position:relative}
+.sheet h3{margin:0 0 2px;font:600 26px 'Cormorant Garamond',Georgia,serif;padding-right:30px}
+.x{position:absolute;right:12px;top:8px;border:0;background:none;font-size:28px;color:var(--mut);cursor:pointer}
+.lbl{margin:14px 0 6px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.grid{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font:inherit;color:var(--ink);cursor:pointer;text-align:center;min-width:64px}
+.opt.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+input,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;font:inherit;background:#fff;margin-bottom:8px;color:var(--ink)}
+.err{color:#b3261e;font-size:13px;margin:8px 0}
+.pro{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.pro h3{margin:0;font:600 22px 'Cormorant Garamond',Georgia,serif}
+.av{width:64px;height:64px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#e9c79c,#c78a3a);color:#fff;display:flex;align-items:center;justify-content:center;font:600 26px 'Cormorant Garamond',serif;flex:none}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="sheet"></div>
+<script>
+// ====== PREENCHA ESTAS 2 LINHAS (Supabase > Project Settings > API) ======
+const CFG = {
+  url: 'https://cjymokyremilztjhgjvy.supabase.co',
+  key: 'sb_publishable_aZ_HFtjCQDa1gzYo07OndQ_aHAFgxaF', // chave pública. NUNCA use a secret/service_role
+  slug: 'beaute-clinic-studio'
+};
+// =========================================================================
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const brl = c => (c / 100).toLocaleString('pt-BR', {style:'currency', currency:'BRL', minimumFractionDigits: c % 100 ? 2 : 0});
+const hm = t => new Date(t).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+const fmtDT = t => new Date(t).toLocaleString('pt-BR', {weekday:'long', day:'2-digit', month:'long', hour:'2-digit', minute:'2-digit'});
+let D = null, S = {cat:null, sub:null, tab:'s', view:'s'}, B = null;
+
+async function rpc(fn, args) {
+  const r = await fetch(CFG.url + '/rest/v1/rpc/' + fn, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json', apikey: CFG.key, ...(CFG.key.startsWith('eyJ') ? {Authorization: 'Bearer ' + CFG.key} : {})},
+    body: JSON.stringify(args)
+  });
+  const d = await r.json().catch(() => null);
+  if (!r.ok) throw new Error((d && d.message) || 'Erro de conexão');
+  return d;
+}
+
+const offersOf = id => D.offers.filter(o => o.service_id === id);
+const proById = id => D.professionals.find(p => p.id === id);
+const wa = () => D.studio.whatsapp_number ? 'https://wa.me/' + D.studio.whatsapp_number.replace(/\D/g, '') : null;
+
+async function init() {
+  if (CFG.url.startsWith('COLE')) {
+    $('#app').innerHTML = '<div class="wrap"><p class="note">Abra o arquivo index.html e preencha CFG.url e CFG.key no começo do script.</p></div>';
+    return;
+  }
+  try {
+    D = await rpc('public_get_catalog', {p_slug: CFG.slug});
+    if (!D) throw new Error('Studio não encontrado.');
+  } catch (e) {
+    $('#app').innerHTML = '<div class="wrap"><p class="err">Não foi possível carregar: ' + esc(e.message) + '</p></div>';
+    return;
+  }
+  render();
+}
+
+function price(s) {
+  const o = offersOf(s.id);
+  if (!o.length) return '<small>Indisponível</small>';
+  const p = o.map(x => x.price_cents), mn = Math.min(...p);
+  const from = o.some(x => x.price_is_from) || Math.max(...p) > mn;
+  return `<div class="pr">${from ? '<small>A partir de</small>' : ''}<b>${brl(mn)}</b></div>`;
+}
+function row(s, label) {
+  const ok = offersOf(s.id).length;
+  return `<div class="row">${label ? `<span>${esc(label)}</span>` : ''}${price(s)}${ok ? `<button class="btn" onclick="openBooking('${s.id}')">Agendar</button>` : ''}</div>`;
+}
+function cards(svcs) {
+  const groups = {}, order = [];
+  svcs.forEach(s => {
+    const k = s.group_name || s.id;
+    if (!groups[k]) { groups[k] = []; order.push(k); }
+    groups[k].push(s);
+  });
+  return order.map(k => {
+    const g = groups[k], f = g[0], multi = g.length > 1;
+    const img = f.image_url ? `<img src="${esc(f.image_url)}" alt="" loading="lazy">` : '<div class="ph"></div>';
+    return `<div class="card">${img}<div class="b"><h3>${esc(f.group_name || f.name)}</h3>${f.description ? `<p>${esc(f.description)}</p>` : ''}${g.map(s => row(s, multi ? s.variant_label : '')).join('')}</div></div>`;
+  }).join('');
+}
+function proCard(p) {
+  const av = p.photo_url ? `<img class="av" src="${esc(p.photo_url)}" alt="">` : `<div class="av">${esc((p.name || '?')[0])}</div>`;
+  const yrs = p.experience_years ? ` · ${p.experience_years} anos de profissão` : '';
+  return `<div class="pro">${av}<div class="b"><h3>${esc(p.name)}</h3><small style="color:var(--gold2);font-weight:700">${esc(p.title || '')}${yrs}</small>${p.bio ? `<p style="margin:4px 0 0;font-size:13px;color:var(--mut)">${esc(p.bio)}</p>` : ''}</div></div>`;
+}
+function contact() {
+  const s = D.studio, w = wa();
+  const items = [w && `<p><a href="${w}">WhatsApp</a></p>`, s.phone && `<p>${esc(s.phone)}</p>`, s.instagram_handle && `<p>@${esc(s.instagram_handle.replace('@', ''))}</p>`].filter(Boolean);
+  return `<h1>Contato</h1><div class="card"><div class="b">${items.join('') || '<p>Em breve.</p>'}</div></div>`;
+}
+const nav = () => `<nav>
+  <button class="${S.view === 's' ? 'on' : ''}" onclick="S.view='s';render()">Serviços</button>
+  <button class="cta" onclick="${wa() ? `location.href='${wa()}'` : `S.view='s';render();scrollTo(0,0)`}">Agendar</button>
+  <button class="${S.view === 't' ? 'on' : ''}" onclick="S.view='t';render()">Equipe</button>
+  <button class="${S.view === 'c' ? 'on' : ''}" onclick="S.view='c';render()">Contato</button></nav>`;
+
+function render() {
+  const top = D.categories.filter(c => !c.parent_id);
+  if (!S.cat || !top.find(c => c.id === S.cat)) S.cat = top[0] && top[0].id;
+  const st = D.studio;
+  let h = `<header><div class="brand">${st.logo_url ? `<img src="${esc(st.logo_url)}" alt="${esc(st.name)}" style="height:48px">` : esc(st.name)}</div></header><div class="wrap">`;
+  if (S.view === 's' && top.length) {
+    const cat = top.find(c => c.id === S.cat), kids = D.categories.filter(c => c.parent_id === cat.id);
+    const sub = kids.length ? (kids.find(k => k.id === S.sub) || kids[0]) : null, scope = sub || cat;
+    const svcs = D.services.filter(s => s.category_id === scope.id);
+    const pids = [...new Set(svcs.flatMap(s => offersOf(s.id).map(o => o.professional_id)))];
+    const pros = pids.map(proById).filter(Boolean);
+    h += `<h1>${esc(cat.name)}</h1><p class="tag">${esc(cat.tagline || '')}</p>`;
+    if (top.length > 1) h += `<div class="chips">${top.map(c => `<button class="chip ${c.id === cat.id ? 'on' : ''}" onclick="S.cat='${c.id}';S.sub=null;S.tab='s';render()">${esc(c.name)}</button>`).join('')}</div>`;
+    if (kids.length) h += `<div class="chips">${kids.map(k => `<button class="chip ${k.id === scope.id ? 'on' : ''}" onclick="S.sub='${k.id}';render()">${esc(k.name)}</button>`).join('')}</div>`;
+    else h += `<div class="chips"><button class="chip ${S.tab === 's' ? 'on' : ''}" onclick="S.tab='s';render()">Serviços</button><button class="chip ${S.tab === 'p' ? 'on' : ''}" onclick="S.tab='p';render()">Profissionais</button></div>`;
+    if (pros.length) h += `<div class="by">Atendimento realizado por ${pros.map(p => `<b>${esc(p.name)}</b>`).join(' e ')}</div>`;
+    h += (!kids.length && S.tab === 'p') ? pros.map(proCard).join('') : (svcs.length ? cards(svcs) : '<p class="tag">Em breve.</p>');
+    if (cat.notice) h += `<div class="note"><b>IMPORTANTE</b><br>${esc(cat.notice)}</div>`;
+  } else if (S.view === 't') h += '<h1>Equipe</h1>' + D.professionals.map(proCard).join('');
+  else if (S.view === 'c') h += contact();
+  $('#app').innerHTML = h + '</div>' + nav();
+}
+
+// ---------- Agendamento ----------
+function openBooking(id) {
+  const svc = D.services.find(s => s.id === id), offs = offersOf(id);
+  B = {svc, offs, prof: offs.length === 1 ? offs[0].professional_id : null, date: null, slots: null, slot: null, name: '', phone: '', note: '', err: '', loading: false, busy: false, done: false};
+  sheet();
+}
+const closeB = () => { B = null; sheet(); };
+function pickProf(id) { B.prof = id; B.date = null; B.slots = null; B.slot = null; B.err = ''; sheet(); }
+async function pickDate(d) {
+  B.date = d; B.slot = null; B.slots = null; B.loading = true; sheet();
+  try {
+    const r = await rpc('public_get_available_slots', {p_slug: CFG.slug, p_professional_id: B.prof, p_service_id: B.svc.id, p_date: d});
+    B.slots = r.map(x => x.slot_start);
+  } catch (e) { B.err = e.message; }
+  B.loading = false; sheet();
+}
+function days() {
+  const a = [], t = new Date();
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(t.getFullYear(), t.getMonth(), t.getDate() + i);
+    const v = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    a.push({v, l: d.toLocaleDateString('pt-BR', {weekday:'short', day:'2-digit'}).replace('.', '')});
+  }
+  return a;
+}
+async function submit() {
+  B.err = ''; B.busy = true; sheet();
+  try {
+    await rpc('public_create_booking', {p_slug: CFG.slug, p_professional_id: B.prof, p_service_id: B.svc.id, p_starts_at: B.slot, p_client_name: B.name, p_client_phone: B.phone, p_note: B.note || null});
+    B.done = true;
+  } catch (e) {
+    const m = e.message; B.busy = false;
+    if (/horário/i.test(m)) { B.slot = null; await pickDate(B.date); }
+    B.err = m;
+  }
+  if (B) { B.busy = false; sheet(); }
+}
+function sheet() {
+  if (!B) { $('#sheet').innerHTML = ''; return; }
+  const s = B.svc;
+  let h = '<div class="ov" onclick="if(event.target===this)closeB()"><div class="sheet"><button class="x" onclick="closeB()">×</button>';
+  if (B.done) {
+    const w = wa();
+    $('#sheet').innerHTML = h + `<h3>Pedido enviado ✦</h3><p>Recebemos seu pedido de <b>${esc(s.name)}</b> para ${esc(fmtDT(B.slot))}. O studio vai confirmar com você pelo WhatsApp.</p>${w ? `<a class="btn" href="${w}">Falar no WhatsApp</a> ` : ''}<button class="btn" onclick="closeB()">Fechar</button></div></div>`;
+    return;
+  }
+  h += `<h3>${esc(s.name)}</h3>`;
+  if (B.offs.length > 1) h += '<div class="lbl">Profissional</div><div class="grid">' + B.offs.map(o => `<button class="opt ${o.professional_id === B.prof ? 'on' : ''}" onclick="pickProf('${o.professional_id}')">${esc((proById(o.professional_id) || {}).name)}<br><small>${brl(o.price_cents)}</small></button>`).join('') + '</div>';
+  if (B.prof) {
+    h += '<div class="lbl">Dia</div><div class="grid">' + days().map(d => `<button class="opt ${d.v === B.date ? 'on' : ''}" onclick="pickDate('${d.v}')">${d.l}</button>`).join('') + '</div>';
+    if (B.loading) h += '<p class="tag">Buscando horários…</p>';
+    else if (B.slots) h += '<div class="lbl">Horário</div>' + (B.slots.length ? `<div class="grid">${B.slots.map(t => `<button class="opt ${t === B.slot ? 'on' : ''}" onclick="B.slot='${t}';sheet()">${hm(t)}</button>`).join('')}</div>` : '<p class="tag">Sem horários neste dia.</p>');
+  }
+  if (B.slot) h += `<div class="lbl">Seus dados</div>
+    <input placeholder="Seu nome" value="${esc(B.name)}" oninput="B.name=this.value">
+    <input placeholder="WhatsApp com DDD" inputmode="tel" value="${esc(B.phone)}" oninput="B.phone=this.value">
+    <textarea rows="2" placeholder="Observação (opcional)" oninput="B.note=this.value">${esc(B.note)}</textarea>
+    <button class="btn fill" ${B.busy ? 'disabled' : ''} onclick="submit()">Confirmar agendamento</button>`;
+  if (B.err) h += `<p class="err">${esc(B.err)}</p>`;
+  $('#sheet').innerHTML = h + '</div></div>';
+}
+init();
+</script>
+</body>
+</html>
