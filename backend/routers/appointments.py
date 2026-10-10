@@ -16,6 +16,8 @@ from models.appointment import (
     AppointmentOut,
     AppointmentStatusUpdate,
     MetricsOut,
+    WeekAgendaOut,
+    WeekDay,
 )
 
 router = APIRouter(prefix="/appointments", tags=["appointments"])
@@ -36,15 +38,60 @@ APPT_FIELDS = (
     "notes",
     "status",
     "created_at",
+    "reminder_sent_at",
 )
 
 
 def appt_out(doc: dict) -> AppointmentOut:
-    return AppointmentOut(**{k: aware_doc(doc)[k] for k in APPT_FIELDS})
+    normalized = aware_doc(doc)
+    return AppointmentOut(**{k: normalized.get(k) for k in APPT_FIELDS})
 
 
 def _tz():
     return ZoneInfo(os.environ.get("APP_TZ", "UTC"))
+
+
+@router.get("/week", response_model=WeekAgendaOut)
+async def week_agenda(start: str | None = None, studio: dict = Depends(require_studio)):
+    """Paper-diary view: 7 days from `start` (default: this week's Monday, server clock)."""
+    if start and not valid_date(start):
+        raise HTTPException(status_code=422, detail="Data inicial inválida")
+    if not start:
+        now = datetime.now(_tz())
+        start = (now - timedelta(days=now.weekday())).strftime("%Y-%m-%d")
+
+    start_date = datetime.strptime(start, "%Y-%m-%d")
+    dates = [(start_date + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
+
+    docs = (
+        await db.appointments.find(
+            {"studio_id": studio["id"], "date": {"$gte": dates[0], "$lte": dates[-1]}}
+        )
+        .sort([("date", 1), ("time", 1)])
+        .to_list(1000)
+    )
+    hours = await db.business_hours.find({"studio_id": studio["id"]}).sort("weekday", 1).to_list(7)
+    closed_weekdays = {h["weekday"] for h in hours if h.get("closed")}
+
+    by_date: dict[str, list] = {date: [] for date in dates}
+    for doc in docs:
+        if doc["date"] in by_date:
+            by_date[doc["date"]].append(appt_out(doc))
+
+    return WeekAgendaOut(
+        start=dates[0],
+        end=dates[-1],
+        today=today_iso(),
+        days=[
+            WeekDay(
+                date=date,
+                weekday=datetime.strptime(date, "%Y-%m-%d").weekday(),
+                closed=datetime.strptime(date, "%Y-%m-%d").weekday() in closed_weekdays,
+                appointments=by_date[date],
+            )
+            for date in dates
+        ],
+    )
 
 
 @router.get("/metrics", response_model=MetricsOut)
@@ -91,11 +138,17 @@ async def list_appointments(
         query["date"] = today_iso()
     elif scope == "upcoming":
         query["date"] = {"$gt": today_iso()}
+    elif scope == "tomorrow":
+        query["date"] = (datetime.now(_tz()) + timedelta(days=1)).strftime("%Y-%m-%d")
 
     if status:
         query["status"] = status
 
-    sort = [("date", 1), ("time", 1)] if scope in ("today", "upcoming") else [("date", -1), ("time", -1)]
+    sort = (
+        [("date", 1), ("time", 1)]
+        if scope in ("today", "upcoming", "tomorrow")
+        else [("date", -1), ("time", -1)]
+    )
     docs = await db.appointments.find(query).sort(sort).to_list(300)
     return [appt_out(d) for d in docs]
 
@@ -157,4 +210,15 @@ async def update_appointment_status(
 ):
     await _own_appointment(studio["id"], appointment_id)
     await db.appointments.update_one({"id": appointment_id}, {"$set": {"status": input.status}})
+    return appt_out(await db.appointments.find_one({"id": appointment_id}))
+
+
+@router.post("/{appointment_id}/reminder", response_model=AppointmentOut)
+async def mark_reminder_sent(appointment_id: str, studio: dict = Depends(require_studio)):
+    """Stamped after the studio opens the WhatsApp message, so the reminder list can show
+    what was already sent."""
+    await _own_appointment(studio["id"], appointment_id)
+    await db.appointments.update_one(
+        {"id": appointment_id}, {"$set": {"reminder_sent_at": datetime.now(timezone.utc)}}
+    )
     return appt_out(await db.appointments.find_one({"id": appointment_id}))

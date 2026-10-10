@@ -21,8 +21,10 @@ from lib.db import client, db, ensure_indexes
 # Feature routers — each an APIRouter folded into api_router below.
 from routers import appointments as appointments_router
 from routers import auth as auth_router
+from routers import billing as billing_router
 from routers import professionals as professionals_router
 from routers import public as public_router
+from routers import reports as reports_router
 from routers import services as services_router
 from routers import studio_admin as studio_admin_router
 
@@ -47,6 +49,8 @@ api_router.include_router(studio_admin_router.router)
 api_router.include_router(services_router.router)
 api_router.include_router(professionals_router.router)
 api_router.include_router(appointments_router.router)
+api_router.include_router(reports_router.router)
+api_router.include_router(billing_router.router)
 api_router.include_router(public_router.router)
 
 

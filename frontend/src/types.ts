@@ -77,6 +77,73 @@ export interface Appointment {
   notes: string;
   status: AppointmentStatus;
   created_at: string;
+  reminder_sent_at: string | null;
+}
+
+export interface WeekDay {
+  date: string;
+  weekday: number; // python-style: 0=Monday .. 6=Sunday
+  closed: boolean;
+  appointments: Appointment[];
+}
+
+export interface WeekAgenda {
+  start: string;
+  end: string;
+  today: string;
+  days: WeekDay[];
+}
+
+export interface RevenueSlice {
+  label: string;
+  revenue_cents: number;
+  count: number;
+}
+
+export interface MonthPoint {
+  month: string;
+  label: string;
+  revenue_cents: number;
+  count: number;
+}
+
+export interface RevenueReport {
+  start: string;
+  end: string;
+  total_revenue_cents: number;
+  total_count: number;
+  cancelled_count: number;
+  avg_ticket_cents: number;
+  customers: number;
+  by_service: RevenueSlice[];
+  by_professional: RevenueSlice[];
+  by_month: MonthPoint[];
+}
+
+export interface BillingConfig {
+  enabled: boolean;
+  monthly_cents: number;
+  annual_cents: number;
+}
+
+export interface PixCharge {
+  payment_id: string;
+  status: string;
+  plan: string;
+  amount_cents: number;
+  qr_code: string | null;
+  qr_code_base64: string | null;
+  ticket_url: string | null;
+  created_at: string;
+}
+
+export interface PixStatus {
+  payment_id: string;
+  status: string;
+  approved: boolean;
+  plan: string;
+  amount_cents: number;
+  plan_expires_at: string | null;
 }
 
 export interface Metrics {

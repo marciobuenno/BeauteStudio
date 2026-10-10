@@ -6,7 +6,10 @@ import Register from "@/pages/Register";
 import PublicStudio from "@/pages/PublicStudio";
 import AdminLayout from "@/pages/admin/AdminLayout";
 import Dashboard from "@/pages/admin/Dashboard";
+import Agenda from "@/pages/admin/Agenda";
 import AppointmentsAdmin from "@/pages/admin/AppointmentsAdmin";
+import Reports from "@/pages/admin/Reports";
+import Reminders from "@/pages/admin/Reminders";
 import ServicesAdmin from "@/pages/admin/ServicesAdmin";
 import ProfessionalsAdmin from "@/pages/admin/ProfessionalsAdmin";
 import ScheduleAdmin from "@/pages/admin/ScheduleAdmin";
@@ -22,7 +25,10 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
+          <Route path="agenda" element={<Agenda />} />
           <Route path="appointments" element={<AppointmentsAdmin />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="reminders" element={<Reminders />} />
           <Route path="services" element={<ServicesAdmin />} />
           <Route path="professionals" element={<ProfessionalsAdmin />} />
           <Route path="schedule" element={<ScheduleAdmin />} />

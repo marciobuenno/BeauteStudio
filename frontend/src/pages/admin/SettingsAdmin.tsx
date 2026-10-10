@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Copy, ExternalLink, Sparkles } from "lucide-react";
+import { Copy, ExternalLink, QrCode, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { apiGet, apiPatch, apiPost } from "@/lib/api";
+import { apiGet, apiPatch } from "@/lib/api";
 import { apiErrorMessage } from "@/lib/errors";
 import { useMe } from "@/lib/queries";
-import { formatDateBR } from "@/lib/format";
-import type { Studio } from "@/types";
+import { formatBRL, formatDateBR } from "@/lib/format";
+import type { BillingConfig, Studio } from "@/types";
+import PixDialog from "@/components/PixDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +19,8 @@ export default function SettingsAdmin() {
   const qc = useQueryClient();
   const me = useMe();
   const studioQ = useQuery({ queryKey: ["admin", "studio"], queryFn: () => apiGet<Studio>("/studio/me") });
+  const billingQ = useQuery({ queryKey: ["billing", "config"], queryFn: () => apiGet<BillingConfig>("/billing/config") });
+  const [pixOpen, setPixOpen] = useState(false);
   const [form, setForm] = useState({ name: "", tagline: "", phone: "", address: "", about: "" });
 
   useEffect(() => {
@@ -50,18 +53,7 @@ export default function SettingsAdmin() {
     onError: (err) => toast.error(apiErrorMessage(err, "Não foi possível salvar os dados")),
   });
 
-  const activate = useMutation({
-    mutationFn: () => apiPost<Studio>("/studio/plan", { plan: "active", months: 12 }),
-    onSuccess: () => {
-      toast.success("Assinatura ativada — bem-vinda ao plano anual!");
-      qc.invalidateQueries({ queryKey: ["auth", "me"] });
-      qc.invalidateQueries({ queryKey: ["admin", "studio"] });
-    },
-    onError: (err) => toast.error(apiErrorMessage(err, "Não foi possível ativar a assinatura")),
-  });
-
-  if (!me.data) return null;
-  const publicUrl = `${window.location.origin}/b/${me.data.slug}`;
+  if (!me.data) return null;  const publicUrl = `${window.location.origin}/b/${me.data.slug}`;
   const planExpired = me.data.plan === "trial" && me.data.plan_expires_at ? new Date(me.data.plan_expires_at) < new Date() : false;
 
   return (
@@ -164,21 +156,29 @@ export default function SettingsAdmin() {
               )}
             </div>
             <p className="text-xs text-stone-400">
-              Demonstração: ativação manual — pagamento integrado chega na próxima fase.
+              {billingQ.data?.enabled
+                ? `Pix pelo Mercado Pago — ${formatBRL(billingQ.data.monthly_cents)}/mês ou ${formatBRL(billingQ.data.annual_cents)}/ano, com ativação automática.`
+                : "Pagamento via Pix aguardando o Access Token do Mercado Pago."}
             </p>
           </div>
-          {me.data.plan !== "active" && (
-            <Button
-              onClick={() => activate.mutate()}
-              disabled={activate.isPending}
-              className="rounded-full bg-[#1C1917] text-[#FAF7F2] hover:bg-[#3B352E] active:scale-[0.98]"
-              data-testid="plan-activate-button"
-            >
-              <Check className="h-4 w-4" /> {activate.isPending ? "Ativando..." : "Ativar plano anual (demo)"}
-            </Button>
-          )}
+          <Button
+            onClick={() => setPixOpen(true)}
+            className="rounded-full bg-[#1C1917] text-[#FAF7F2] hover:bg-[#3B352E] active:scale-[0.98]"
+            data-testid="plan-activate-button"
+          >
+            <QrCode className="h-4 w-4" />
+            {me.data.plan === "active" ? "Renovar com Pix" : "Assinar com Pix"}
+          </Button>
         </CardContent>
       </Card>
+
+      <PixDialog
+        open={pixOpen}
+        onOpenChange={setPixOpen}
+        ownerName={me.data.owner_name}
+        ownerEmail={me.data.email}
+        config={billingQ.data}
+      />
     </div>
   );
 }

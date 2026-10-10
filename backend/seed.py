@@ -1,7 +1,9 @@
 """Idempotent demo seed for Beauté — run: cd /app/backend && python seed.py"""
 
 import asyncio
+import calendar
 import os
+import random
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
@@ -38,7 +40,9 @@ PROFESSIONALS = [
 async def main() -> None:
     await ensure_indexes()
     if await db.studios.find_one({"slug": SLUG}):
-        print("seed: studio já existe — nada a fazer")
+        print("seed: studio já existe — garantindo histórico de demonstração")
+        existing = await db.studios.find_one({"slug": SLUG})
+        await backfill_history(existing["id"])
         return
 
     now = datetime.now(timezone.utc)
@@ -134,6 +138,82 @@ async def main() -> None:
     )
 
     print(f"seed ok: /b/{SLUG} | login: {EMAIL} | senha: {PASSWORD}")
+    await backfill_history(studio_id)
+
+
+HISTORY_CUSTOMERS = [
+    ("Marina Alves", "(11) 97777-1234"),
+    ("Carla Menezes", "(11) 96666-4321"),
+    ("Renata Lima", "(11) 95555-9876"),
+    ("Patrícia Souza", "(11) 94444-2211"),
+    ("Bianca Rocha", "(11) 93333-7788"),
+    ("Luiza Prado", "(11) 92222-3344"),
+    ("Fernanda Dias", "(11) 91111-5566"),
+    ("Aline Castro", "(11) 98888-1199"),
+]
+
+
+async def backfill_history(studio_id: str, months: int = 5) -> int:
+    """Past completed appointments so the financial report has real curves to show.
+    Idempotent: skips if history already exists."""
+    tz = ZoneInfo(os.environ.get("APP_TZ", "UTC"))
+    cutoff = (datetime.now(tz) - timedelta(days=40)).strftime("%Y-%m-%d")
+    existing = await db.appointments.count_documents(
+        {"studio_id": studio_id, "status": "completed", "date": {"$lt": cutoff}}
+    )
+    if existing:
+        print(f"history: {existing} atendimentos históricos já existem — nada a fazer")
+        return 0
+
+    services = await db.services.find({"studio_id": studio_id}).to_list(50)
+    professionals = await db.professionals.find({"studio_id": studio_id}).to_list(20)
+    if not services or not professionals:
+        return 0
+
+    now = datetime.now(tz)
+    rng = random.Random(42)  # deterministic demo data
+    docs = []
+
+    for month_offset in range(months, 0, -1):
+        anchor = (now.replace(day=1) - timedelta(days=1))
+        for _ in range(month_offset - 1):
+            anchor = anchor.replace(day=1) - timedelta(days=1)
+        year, month = anchor.year, anchor.month
+        days_in_month = calendar.monthrange(year, month)[1]
+        # Busier as the studio grows: 8 appointments 5 months ago, up to ~20 last month
+        volume = 8 + (months - month_offset) * 3
+        for _ in range(volume):
+            day = rng.randint(1, days_in_month)
+            date = datetime(year, month, day)
+            if date.weekday() == 6:  # closed on Sundays
+                continue
+            service = rng.choice(services)
+            professional = rng.choice(professionals)
+            customer, phone = rng.choice(HISTORY_CUSTOMERS)
+            docs.append(
+                {
+                    "id": new_id(),
+                    "studio_id": studio_id,
+                    "service_id": service["id"],
+                    "service_name": service["name"],
+                    "professional_id": professional["id"],
+                    "professional_name": professional["name"],
+                    "date": date.strftime("%Y-%m-%d"),
+                    "time": f"{rng.choice([9, 10, 11, 13, 14, 15, 16, 17]):02d}:{rng.choice(['00', '30'])}",
+                    "duration_min": service["duration_min"],
+                    "price_cents": service["price_cents"],
+                    "customer_name": customer,
+                    "customer_phone": phone,
+                    "notes": "",
+                    "status": "cancelled" if rng.random() < 0.07 else "completed",
+                    "created_at": datetime.now(timezone.utc),
+                }
+            )
+
+    if docs:
+        await db.appointments.insert_many(docs)
+    print(f"history: {len(docs)} atendimentos históricos criados")
+    return len(docs)
 
 
 if __name__ == "__main__":

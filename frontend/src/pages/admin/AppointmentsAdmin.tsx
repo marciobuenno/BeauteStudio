@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Plus, X } from "lucide-react";
+import { Check, MessageCircle, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPatch, apiPost } from "@/lib/api";
 import { apiErrorMessage } from "@/lib/errors";
 import { useMe } from "@/lib/queries";
 import { formatBRL, formatDayLabel, maskPhone, STATUS_LABEL } from "@/lib/format";
+import { confirmationMessage, waLink } from "@/lib/whatsapp";
 import type { Appointment, AppointmentStatus, Professional, Service } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -167,29 +168,41 @@ export default function AppointmentsAdmin() {
                 <TableCell>{formatBRL(a.price_cents)}</TableCell>
                 <TableCell>{statusBadge(a.status)}</TableCell>
                 <TableCell className="text-right">
-                  {a.status === "confirmed" ? (
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setStatus.mutate({ id: a.id, status: "completed" })}
-                        data-testid={`appointment-complete-${a.id}`}
-                      >
-                        <Check className="h-4 w-4" /> Concluir
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setStatus.mutate({ id: a.id, status: "cancelled" })}
-                        className="text-destructive hover:text-destructive"
-                        data-testid={`appointment-cancel-${a.id}`}
-                      >
-                        <X className="h-4 w-4" /> Cancelar
-                      </Button>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-stone-400">—</span>
-                  )}
+                  <div className="flex justify-end gap-1">
+                    <a
+                      href={waLink(a.customer_phone, confirmationMessage(a, me.data?.studio_name ?? "nosso studio"))}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`Avisar ${a.customer_name} no WhatsApp`}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full text-green-700 transition-colors duration-150 hover:bg-green-100"
+                      data-testid={`appointment-whatsapp-${a.id}`}
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </a>
+                    {a.status === "confirmed" ? (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setStatus.mutate({ id: a.id, status: "completed" })}
+                          data-testid={`appointment-complete-${a.id}`}
+                        >
+                          <Check className="h-4 w-4" /> Concluir
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setStatus.mutate({ id: a.id, status: "cancelled" })}
+                          className="text-destructive hover:text-destructive"
+                          data-testid={`appointment-cancel-${a.id}`}
+                        >
+                          <X className="h-4 w-4" /> Cancelar
+                        </Button>
+                      </>
+                    ) : (
+                      <span className="self-center text-xs text-stone-400">—</span>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

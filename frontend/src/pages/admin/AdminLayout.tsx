@@ -1,9 +1,11 @@
 import { NavLink, Navigate, Outlet } from "react-router-dom";
 import {
+  BarChart3,
+  BellRing,
   CalendarDays,
+  CalendarRange,
   Clock,
   Copy,
-  ExternalLink,
   LayoutDashboard,
   LogOut,
   Settings,
@@ -20,7 +22,10 @@ import { Button } from "@/components/ui/button";
 
 const NAV = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, testid: "admin-nav-dashboard", end: true },
+  { to: "/admin/agenda", label: "Agenda da semana", icon: CalendarRange, testid: "admin-nav-agenda", end: false },
   { to: "/admin/appointments", label: "Agendamentos", icon: CalendarDays, testid: "admin-nav-appointments", end: false },
+  { to: "/admin/reminders", label: "Avisos WhatsApp", icon: BellRing, testid: "admin-nav-reminders", end: false },
+  { to: "/admin/reports", label: "Relatórios", icon: BarChart3, testid: "admin-nav-reports", end: false },
   { to: "/admin/services", label: "Serviços", icon: Sparkles, testid: "admin-nav-services", end: false },
   { to: "/admin/professionals", label: "Profissionais", icon: Users, testid: "admin-nav-professionals", end: false },
   { to: "/admin/schedule", label: "Horários", icon: Clock, testid: "admin-nav-schedule", end: false },

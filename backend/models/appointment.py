@@ -39,6 +39,21 @@ class AppointmentOut(BaseModel):
     notes: str
     status: str
     created_at: datetime
+    reminder_sent_at: datetime | None = None
+
+
+class WeekDay(BaseModel):
+    date: str
+    weekday: int  # python-style: 0=Monday .. 6=Sunday
+    closed: bool
+    appointments: list[AppointmentOut]
+
+
+class WeekAgendaOut(BaseModel):
+    start: str
+    end: str
+    today: str
+    days: list[WeekDay]
 
 
 class MetricsOut(BaseModel):
